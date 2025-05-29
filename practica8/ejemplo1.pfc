@@ -1,0 +1,31 @@
+program ejemplo1;
+
+var n: integer;
+	sdatos, sleido: semaphore;
+
+process productor;
+begin
+	repeat
+		wait(sleido);
+		n:= random(20);
+		writeln('Productor produce el siguiente dato: ', n);
+		signal(sdatos);
+	forever
+end;
+
+process consumidor;
+begin
+	repeat
+		wait(sdatos);
+		writeln('Consumir, consume/utiliza el dato ', n);
+		signal(sleido);
+	forever
+end;
+begin
+writeln('Enviando 20 valores aleatorios');
+	initial(sleido, 1); initial(sdatos, 0);
+	cobegin
+		productor;
+		consumidor;
+	coend;
+end.
