@@ -1,0 +1,40 @@
+program filosofo4;
+var palillo: array[0..4] of semaphore;
+process type filosofopar(i: integer);
+begin
+   repeat
+     writeln(i,' : Piensa');
+     wait(palillo[(i+1)mod 5]);
+     wait(palillo[i]);
+     writeln(i,' : Come');
+     signal(palillo[i]);
+     signal(palillo[(i+1)mod 5]);
+   forever
+end;
+process type filosofoimpar(i: integer);
+begin
+   repeat
+     writeln(i,' : Piensa');
+     wait(palillo[i]);
+     wait(palillo[(i+1)mod 5]);
+     writeln(i,' : Come');
+     signal(palillo[i]);
+     signal(palillo[(i+1)mod 5]);
+   forever
+end;
+var k,i : integer;
+     FP: array[0..4] of filosofopar;
+     FI: array[0..4] of filosofoimpar;
+begin
+       for k:=0  to 4 do 
+        initial(palillo[k],1);
+     cobegin 
+       for k:=0 to 4 do 
+       begin
+            if((k = 0) or (k = 1)) then 
+                FP [k](k)
+            else 
+                FI [k](k)
+            end
+       coend          
+end.

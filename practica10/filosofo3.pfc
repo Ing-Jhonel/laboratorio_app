@@ -1,0 +1,38 @@
+program filosofo3;
+
+var palillo: array[0..4] of integer;
+var mutex: semaphore;
+
+process type filosofo(i: integer);
+begin
+	repeat
+		writeln(i, ' : Piensa');
+		wait(mutex);
+		while (palillo[i]=0) or (palillo[i+1 mod 5]=0) do
+			begin
+				signal(mutex);
+				wait(mutex);
+			end;
+		palillo[i]:=0;
+		palillo[(i+1)mod 5]:=0;
+		signal(mutex);
+		writeln(i,' : Come');
+		wait(mutex);
+		palillo[i]:=1;
+		palillo[(i+1)mod 5]:=1;
+		signal(mutex);
+	forever;
+end;
+
+var k, i: integer;
+	F: array[0..4] of filosofo;
+	
+begin
+	initial(mutex, 1);
+	for k:=0 to 4 do
+		palillo[k]:=1;
+		cobegin
+			for k:=0 to 4 do
+				F[k](k);
+		coend;
+end.

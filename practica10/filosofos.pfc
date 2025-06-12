@@ -1,0 +1,27 @@
+program filosofos;
+
+var palillo: array[0..4] of semaphore;
+
+process type filosofo(i: integer);
+begin
+    repeat
+    	writeln(i,' : Piensa');
+    	wait(palillo[i]);
+    	wait(palillo[(i+1) mod 5]);  
+    	writeln(i,' : come');
+    	signal(palillo[i]);
+    	signal(palillo[(i+1) mod 5]);
+	forever
+end;
+
+var k,i : integer ;
+	F: array[0..4] of filosofo;
+ 
+begin  
+      for k:=0 to 4 do
+      	initial(palillo[k],1);
+    cobegin 
+      for k:=0 to 4 do        
+      	F[k](k);
+      coend        
+end.
