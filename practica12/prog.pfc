@@ -1,0 +1,43 @@
+program prog;
+var 
+  i: integer;
+
+monitor incremento;
+	export inc, valor;
+	var i: integer;
+
+  	procedure inc;
+  	begin
+    	i := i + 2;
+  	end;
+
+  	procedure valor;
+  	var valor1: integer;
+  	begin
+    	valor1 := i;
+    	writeln(valor1);
+  	end;
+
+begin
+  i := 0;
+end;
+
+process incrementar;
+begin
+	repeat
+	incremento.inc;
+	forever
+end;
+process imprimir;
+begin
+	repeat
+	incremento.valor;
+	forever
+end;
+
+begin
+	cobegin
+	incrementar;
+	imprimir;
+	coend;
+end.

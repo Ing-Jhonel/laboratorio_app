@@ -1,0 +1,47 @@
+program prog;
+var 
+  i: integer;
+
+monitor semaforobinario;
+	export wait, signal;
+	var sem: boolean;
+		c: condition;
+		
+  	procedure wait;
+  	begin
+    	if(sem=true) then
+    		delay(c);
+    	sem:=true;
+  	end;
+
+  	procedure signal;
+  	begin
+    	if empty(c)=false then
+    		resume(c)
+    	else
+    		sem:=false;
+  	end;
+
+begin
+	sem:=false;
+end;
+
+process p2;
+begin
+	repeat
+	semaforobinario.wait;
+	forever
+end;
+process p1;
+begin
+	repeat
+	semaforobinario.signal;
+	forever
+end;
+
+begin
+	cobegin
+	P2;
+	P1;
+	coend;
+end.
