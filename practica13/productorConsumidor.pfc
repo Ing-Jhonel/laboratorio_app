@@ -1,0 +1,61 @@
+program productorConsumidor;
+
+monitor buffer;
+export insertar,extraer;
+const N=10;
+var 
+	tam,frente,final:integer;
+	clleno,cvacio:condition;
+	cola:array[0..N] of integer;
+	
+procedure insertar(elemento:integer);
+	begin
+		if (tam=N) then
+			delay(clleno);
+		cola[final]:=elemento;
+		final:=(final+1) mod N;
+		tam:=tam+1;
+		resume(cvacio);
+	end;
+
+procedure extraer(var x:integer);
+begin
+	if tam=0 then
+		delay(cvacio);
+	x:=cola[frente];
+	frente:=(frente+1) mod N;
+	tam:=tam-1;
+	resume(clleno);
+end;
+
+begin
+	frente:=0;
+	final:=0;
+	tam:=0;
+end;
+
+process productor;
+var y:integer;
+begin
+	repeat
+		y:=random(10);
+		buffer.insertar(y);
+	forever
+end;
+process consumidor;
+var
+	a:integer;
+begin
+	repeat
+		buffer.extraer(a);
+		writeln(a);
+	forever
+end;
+
+begin
+	cobegin
+		productor;
+		consumidor;
+	coend;
+end.
+(*likidin*)

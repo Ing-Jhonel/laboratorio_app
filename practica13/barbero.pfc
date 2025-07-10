@@ -1,0 +1,55 @@
+program barbero;
+
+const
+  nsillas = 5;
+
+var
+  silla, nuevoCliente, barber: semaphore;
+  esperar: integer;
+
+process Cliente;
+begin
+  repeat
+    wait(silla);
+    if esperar < nsillas then
+    begin
+      esperar := esperar + 1;
+      writeln('Cliente esperando');
+      sleep(random(1));
+      signal(nuevoCliente);
+      signal(silla);
+      wait(barber);
+    end
+    else
+    begin
+      writeln('Cliente se va porque no hay sillas disponibles');
+      signal(silla);
+    end;
+  forever
+end;
+
+process Barbero;
+begin
+  repeat
+    wait(nuevoCliente);
+
+    wait(silla);
+    esperar := esperar - 1;
+    signal(barber);
+    signal(silla);
+
+    writeln('El barbero corta el pelo al cliente');
+    writeln('Esperando al siguiente cliente...');
+  forever
+end;
+
+begin
+  esperar := 0;
+  initial(nuevoCliente, 0);
+  initial(barber, 0);
+  initial(silla, 1);
+  cobegin
+    Barbero;
+    Cliente;
+  coend
+end.

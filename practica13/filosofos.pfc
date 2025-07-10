@@ -1,0 +1,58 @@
+program filosofos;
+
+
+monitor comidaFilosofos;
+	export cogerPalillos, soltarPalillos;
+	const N = 5;
+	var estado: array[0..4] of (pensando, comiendo, hambriento);
+		dormir: array[0..4] of condition;
+		i: integer;
+	
+	procedure test(k: integer);
+	begin                                 
+		if (estado[(k+N-1) mod N] <> comiendo) and
+		   (estado[(k+1) mod N] <> comiendo) then
+		begin 
+			estado[k] := comiendo;
+			resume(dormir[k]);
+		end; 
+	end;
+	
+	procedure cogerPalillos(i: integer);
+	begin
+		estado[i] := hambriento; 
+		test(i);				
+								 
+		if estado[i] <> comiendo then delay(dormir[i])
+	end;
+	
+	procedure soltarPalillos(i: integer);
+	begin
+		estado[i] := hambriento; 
+								 
+		test((i+4) mod N);
+		test((i+1) mod N)
+	end;
+	
+begin
+	for i := 0 to N-1 do
+		estado[i] := pensando;
+end;
+
+process type filosofo(i: integer);
+begin
+		writeln('	FILOSOFO: ', i+1, ' PIENSA ');
+		comidaFilosofos.cogerPalillos(i);
+		writeln(' FILOSOFO:  ', i+1, ' COME ');
+		comidaFilosofos.soltarPalillos(i);
+		writeln(' FILOSOFO ', i+1, ' TERMINO DE COMER');
+end;
+
+var i: integer;
+	F: array[0..4] of filosofo;
+begin
+	cobegin
+		for i := 0 to 4 do
+			F[i](i);
+	coend;
+end.

@@ -1,0 +1,71 @@
+program lectorEscritor;
+
+monitor PrioLec;
+export alectura, clectura, aescritura, cescritura;
+
+var
+  n1: integer;
+  escribiendo: boolean;
+  lector, escritor: condition;
+
+  procedure alectura;
+  begin
+    if escribiendo then delay(lector);
+    n1 := n1 + 1;
+    resume(lector);
+  end;
+
+  procedure clectura;
+  begin
+    n1 := n1 - 1;
+    if n1 = 0 then resume(escritor);
+  end;
+
+  procedure aescritura;
+  begin
+    if (n1 <> 0) or escribiendo then delay(escritor);
+    escribiendo := true;
+  end;
+
+  procedure cescritura;
+  begin
+    escribiendo := false;
+    if empty(lector) then resume(escritor)
+    else resume(lector);
+  end;
+
+begin
+  n1 := 0;
+  escribiendo := false;
+end;
+
+process type lector;
+var
+  lec: integer;
+begin
+  repeat
+    PrioLec.alectura;
+    writeln('Leer el recurso');
+    PrioLec.clectura;
+  forever
+end;
+
+process type escritor;
+begin
+  repeat
+    PrioLec.aescritura;
+    writeln('Escribir en el recurso');
+    PrioLec.cescritura;
+  forever
+end;
+
+	var i : integer;
+	LE: array[0..3] of lector;
+	ES: array[0..3] of escritor;
+
+begin
+  	cobegin
+		for i:=0 to 3 do
+		LE[i]; ES[i];
+	coend
+end.
